@@ -39,7 +39,7 @@ conditionList format
         ]
     }
 Logic
-Recursively Check each field, and Valie of the data structure depending on data type. and perform the operation by passing the Key/Value operaition and passwd argument(keyword). - this would take care of FieldCheck(), ValueCheck(), and ValueChange() needed logic
+Recursively Check each field, and Value of the data structure depending on data type. and perform the operation by passing the Key/Value operaition and passed argument(keyword). - this would take care of FieldCheck(), ValueCheck(), and ValueChange() needed logic
     Mode Handler (findOne,FindAll) (singleValue check, MultiValueCheck), usecase(fieldCheck, ValueCheck, ValueChange, reformat)(replace,checkOnly)
     TypeDependent Recursive Checker
     Operation Handler
