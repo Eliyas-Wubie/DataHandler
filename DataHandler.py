@@ -144,6 +144,54 @@ def Recursor(mode,initial=True,result=[],data="", keyword="", op="eq", tip=""):
                     result.append({f"{tip}-listElement":keyword})
             return result
 
+    elif mode=="multiKeyValueCheck":
+        dataType=type(data)
+        if dataType==dict:
+            for item in list(data.keys()):
+                print("..,.,.,.,.,.,.,", item,keyword)
+                fieldCheck=ConditionHandler(item,keyword,"field")
+                if fieldCheck:
+                    verdict=ConditionHandler(data.get(item),keyword)
+                    if verdict:
+                        result.append({item: data.get(item)})
+                        Recursor(mode,False,result, data.get(item), keyword, op, {item:data.get(item)})
+                    else:
+                        Recursor(mode,False,result, data.get(item), keyword, op, {item:data.get(item)})
+            return result               
+        elif dataType==list:
+            print("iterating--", data)
+            for item in data:
+                LooPdataType=type(item)
+                if LooPdataType==list or LooPdataType==dict:
+                    Recursor(mode,False,result, item, keyword, op, tip)
+            return result
+        else:
+            return result
+
+    elif mode=="valueChange":
+        dataType=type(data)
+        if dataType==dict:
+            print("dict triggered", result)
+            for item in list(data.keys()):
+                print("_______", item, op)
+                if item==keyword:
+                    data[item]=op
+                    result.append({item: data.get(item)})
+                    Recursor(mode,False,result, data.get(item), keyword, op)
+                else:
+                    Recursor(mode,False,result, data.get(item), keyword, op)
+            return [data]              
+        elif dataType==list:
+            print("list triggered", result)
+            for item in data:
+                Recursor(mode,False,result, item, keyword, op)
+            return [data]
+        else:
+            print("else triggered", result)
+            if initial:
+                print("The data is not a dictionary or a list")
+            return [data]
+    
 def OperationHandler(data, op, value):
     if op=="eq":
         return data==value
@@ -158,13 +206,13 @@ def OperationHandler(data, op, value):
     elif op=="lte":
         pass
 
-def ConditionHandler(data, condition):
+def ConditionHandler(data, condition, mode="value"):
     verdict=[]
     if condition.get("Op")=="and" or condition.get("Op")=="or":
         resCollection=[]
         print(".............",condition.get("Value"))
         for item in condition.get("Value"):
-            resCollection.append(ConditionHandler(data,item))
+            resCollection.append(ConditionHandler(data,item,mode))
         if condition.get("Op")=="and":
             if False in resCollection:
                 return False
@@ -176,8 +224,12 @@ def ConditionHandler(data, condition):
             else:
                 return False
     else:
-        verdict=OperationHandler(data,condition.get("Op"),condition.get("Value"))
-        return verdict
+        if mode=="value":
+            verdict=OperationHandler(data,condition.get("Op"),condition.get("Value"))
+            return verdict
+        elif mode=="field":
+            verdict=OperationHandler(data,condition.get("Op"),condition.get("field"))
+            return verdict
 
 def FieldCheck(data,fieldName=""):
     res=Recursor("fieldCheck",True, [], data, fieldName)
@@ -211,13 +263,23 @@ def MultiValueCheck(data, condition):
         return {"verdict":False, "data":None}
 
 def MultiKeyValueCheck(data,condition):
-    pass
+    res=Recursor("multiKeyValueCheck",True, [], data, condition)
+    if len(res)!=0:
+        return {"verdict":True, "data":res}
+    else:
+        return {"verdict":False, "data":None}
+
 def ValueChange(data,key,value):
-    pass
+    res=Recursor("valueChange",True, [], data, key, value)
+    if len(res)!=0:
+        return {"verdict":True, "data":res}
+    else:
+        return {"verdict":False, "data":None}
+
 def Reform():
     pass
 # res=KeyValueCheck(TestAoO,{"t1":["abc", "haha"]})
 # res=ConditionHandler("thisValue",TestCon)
-res=MultiValueCheck(TestAoO,TestCon)
+res=ValueChange(TestAoO,"t1","lala")
 print("********",res)
 print("-----------------------DONE-----------------------------")
