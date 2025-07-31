@@ -1,4 +1,5 @@
 from data_handler.checkers import *
+from data_handler.changers import *
 from Test.Data import *
 
 
@@ -176,10 +177,10 @@ alert={
             }
     
 flag={
-    "chain":False,
-    "se":False,
-    "cs":True,
-    "findOne":False 
+    "chain":False,             # n
+    "se":False,                # n
+    "cs":True,                 # w
+    "findOne":False            # w
 }
 conArray={
     "Op":"or",
@@ -218,18 +219,14 @@ conArray2={
     "Op":"or",
     "Value":[
         {
-            "field":"a",
+            "field":"t9",
             "Op":"eq",
-            "Value":"a"
+            "Value":"abcd"
         }
     
     ]
 }
 
-res=match_object(TestAoO,{
-    "a":"a",
-    "b":"b",
-    "c":"c"
-                    },flag)
+res=change_value(TestAoO,"t9","XXXX",flags=flag)
 
 print(res)

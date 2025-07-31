@@ -12,12 +12,10 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
             "prevParent":[],
         }
 
-    if mode=="fieldCheck": # viable flags:- chains,caseSens,findone
+    if mode=="fieldCheck": # viable flags:- chains,caseSens,findone (TESTED)
         dataType=type(data)
         if dataType==dict:
-            # print("dict triggered", result)
             for item in list(data.keys()):
-                # print("_______", item,temp)
                 if flags.get("found") and flags.get("findOne"):
                     break
                 if temp.get("path")!= None:
@@ -92,7 +90,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                 print("The data is not a dictionary or a list",data)
             return result
     
-    elif mode=="valueCheck": # viable flags:- caseSens,findOne
+    elif mode=="valueCheck": # viable flags:- caseSens,findOne (TESTED)
         dataType=type(data)
         # if flags.get("tab")!=None:
         #     flags["tab"]=flags.get("tab")+1
@@ -179,7 +177,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
             # print("----------------setting parent list",data)
             if initial:
                 copmareData=copy.deepcopy(data)
-                verdict=handle_operation(copmareData,op,keyword)
+                verdict=handle_operation(copmareData,op,keyword,flags)
                 if verdict:
                     newData=copy.deepcopy(temp)
                     newData["value"]=data
@@ -218,15 +216,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
 
                         temp["parent"]=temp.get("prevParent").pop()
                 else:
-                    if flags.get("cs"):
-                        copmareData=copy.deepcopy(data[i])
-                    else:
-                        if type(data[i])==str:
-                            copmareData=copy.deepcopy(data[i].lower())
-                        else:
-                            copmareData=copy.deepcopy(data[i])
-                        keyword=copy.deepcopy(keyword.lower())
-                    verdict=handle_operation(copmareData,"eq",keyword)
+                    verdict=handle_operation(data[i],op,keyword,flags)
 
                     if verdict:
                         if tip=="":
@@ -249,17 +239,12 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
             return result
         else:
             if initial:
-                if flags.get("cs"):
-                    pass
-                else:
-                    data=copy.deepcopy(data.lower())
-                    keyword=copy.deepcopy(keyword.lower())
-                verdict=handle_operation(data,"eq",keyword)
+                verdict=handle_operation(data,op,keyword,flags)
                 result.append({"main-listElement":keyword})
             # flags["tab"]=flags.get("tab")-1
             return result
     
-    elif mode=="keyValueCheck": # viable flags:- chains,caseSens,findone
+    elif mode=="keyValueCheck": # viable flags:- chains,caseSens,findone (TESTED)
         dataType=type(data)
         if dataType==dict:
             if tip=="obj":
@@ -276,7 +261,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                         pathExtraction=list(keyword.keys())[0].split(".")
                         newKeyward=pathExtraction[-1]
                     else:
-                        newKeyward=keyword
+                        newKeyward=list(keyword.keys())[0]
                     con=newKeyward in listOfKeys and data.get(newKeyward).lower()==keyword.get(list(keyword.keys())[0]).lower()
                 if flags.get("chain"):
                     if temp.get("path")!=None:
@@ -290,7 +275,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                 else:
                     pathCon=True
                 if con and pathCon:
-                    item=list(keyword.keys())[0]
+                    item=newKeyward
                     newData=copy.deepcopy(temp)
                     newData["value"]=data.get(item)
                     if temp.get("path")==None:
@@ -435,7 +420,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                 print("The data is not a dictionary or a list")
             return result
 
-    elif mode=="multiValueCheck": # viable flags:- caseSens, findone
+    elif mode=="multiValueCheck": # viable flags:- caseSens, findone (TESTED)
         dataType=type(data)        
         if dataType==dict:
             temp.get("prevParent").append(copy.deepcopy(temp.get("parent")))
@@ -561,7 +546,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                 flags["found"]=True
             return result
 
-    elif mode=="multiKeyValueCheck": # viable flags:- chain, caseSens, findone and singleElement
+    elif mode=="multiKeyValueCheck": # viable flags:- caseSens, findone and singleElement (TESTED)
         """
         SE verses Chaining
             can they work togather?
@@ -596,6 +581,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                     newRes.pop("prevParent")
                     result.append(newRes)
                     flags["found"]=True
+                temp.get("prevParent").append(copy.deepcopy(temp.get("parent")))
                 temp["parent"]=data
                 for item in data.keys():
                     if flags.get("found") and flags.get("findOne"):
@@ -612,6 +598,10 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                         temp["path"]=None
                     else:
                         temp["path"]=newPath
+                if temp.get("prevParent")!=[]:
+                    temp["parent"]=copy.deepcopy(temp.get("prevParent").pop())
+                else:
+                    temp["parent"]=None
                 return result
             elif dataType==list:
                 temp.get("prevParent").append(copy.deepcopy(temp.get("prevParent")))
@@ -631,7 +621,10 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                         temp["path"]=None
                     else:
                         temp["path"]=newPath
-                temp["parent"]=temp.get("prevParent").pop()
+                if temp.get("prevParent")!=[]:
+                    temp["parent"]=copy.deepcopy(temp.get("prevParent").pop())
+                else:
+                    temp["parent"]=None
                 return result
             else:
                 if initial:
@@ -642,28 +635,22 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
         else:
             raise Exception(" The following function only works with Single Element flag, please set flag 'se' True ")
     
-    elif mode=="valueChange": #viable flags:- caseSense, findOne
+    elif mode=="valueChange": #viable flags:- caseSense, findOne (TESTED)
         dataType=type(data)
+        if initial:
+            flags["isChanged"]=False
         if dataType==dict:
             for item in list(data.keys()):
                 if flags.get("found") and flags.get("findOne"):
                     break
                 if flags.get("cs"):
-                    # if flags.get("chain"):
-                    #     chain,cleanChain,word=chainHandler(keyword)
-                    #     con=".".join(chain)==temp.get("path")
-                    # else:
                         con=item==keyword
                 else:
-                    # if flags.get("chain"):
-                    #     chain,cleanChain,word=chainHandler(keyword)
-                    #     con=".".join(chain).lower()==temp.get("path").lower()
-                    # else:
                         con=item.lower()==keyword.lower()
-                print("....................",con)
                 if con:
                     data[item]=op
                     result.append({item: data.get(item)})
+                    flags["isChanged"]=True
                     flags["found"]=True
                     if temp.get("path")==None:
                         temp["path"]=item
@@ -683,7 +670,10 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                     temp["path"]=None
                 else:
                     temp["path"]=newPath
-            return [data]              
+            if flags.get("isChanged"):
+                return [data]
+            else:
+                return []              
         elif dataType==list:
             for i in range(len(data)):
                 if flags.get("found") and flags.get("findOne"):
@@ -700,13 +690,20 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                     temp["path"]=None
                 else:
                     temp["path"]=newPath
-            return [data]
+            if flags.get("isChanged"):
+                return [data]
+            else:
+                return []   
         else:
             if initial:
                 print("The data is not a dictionary or a list")
-            return [data]
+            
+            if flags.get("isChanged"):
+                return [data]
+            else:
+                return []   
   
-    elif mode=="matchObject": # viable flags:- caseSense,findOne (Tested)
+    elif mode=="matchObject": # viable flags:- caseSense,findOne (TESTED)
         dataType=type(data)
         if dataType==dict:
             verdict=handle_operation(data,"match",keyword,flags)

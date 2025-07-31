@@ -2,7 +2,9 @@ import re
 import copy
 
 
-def handle_operation(data, op, value, flags={}):
+def handle_operation(data, op, value, flags={
+        "cs":True,
+    }):
     if op=="eq":
         if flags.get("cs"):
             return data==value
@@ -67,7 +69,6 @@ def handle_operation(data, op, value, flags={}):
 
 def handle_condition(data, condition, mode="value", flags={}): # wrong implementation, field and value need to be checked at the same time
     verdict=[]
-    # print("mode",mode)
     if mode=="object":
         if condition.get("Op")=="and" or condition.get("Op")=="or":
             collector=[]
@@ -83,26 +84,20 @@ def handle_condition(data, condition, mode="value", flags={}): # wrong implement
                         collector.append(False)
                 else:
                     res=handle_condition(data,item,"object",flags)
-                    # print("res--------------",res)
-                    # collector.append(res)
                     collector.append(res.get("conditionCheck"))
-                print("item and result",item,collector)
                 
             if condition.get("Op")=="and":
-                print("condition handler and")
                 if False in collector:
                     return {"conditionCheck":False,"data":None}
                 else:
                     return {"conditionCheck":True,"data":data}
 
             elif condition.get("Op")=="or":
-                print("condition handler or")
                 if True in collector:
                     return {"conditionCheck":True,"data":data}
                 else:
                     return {"conditionCheck":False,"data":None}
         else:
-            print("not and or or")
             verdict=handle_operation(data,condition.get("Op"),condition.get("Value"),flags)
             return verdict
     elif mode=="key:value":
@@ -124,7 +119,6 @@ def handle_condition(data, condition, mode="value", flags={}): # wrong implement
             verdict=handle_operation({dataKey:dataValue},condition.get("Op"),{conKey:conValue},flags)
         return verdict
     elif mode=="value" or mode=="field":
-        # print("--------condition check")
         verdict=[]
         if condition.get("Op")=="and" or condition.get("Op")=="or":
             resCollection=[]
@@ -148,35 +142,6 @@ def handle_condition(data, condition, mode="value", flags={}): # wrong implement
             elif mode=="field":
                 verdict=handle_operation(data,condition.get("Op"),condition.get("field"),flags)
                 return verdict
-        # if condition.get("Op")=="and" or condition.get("Op")=="or":
-        #     resCollection=[]
-        #     numOfConditions=len(condition.get("Value"))
-        #     for item in condition.get("Value"):
-        #         resCollection.append(handle_condition(data,item,mode,flags))
-        #     if condition.get("Op")=="and":
-        #         if flags.get("se"):
-        #             if False in resCollection:
-        #                 return False
-        #             elif numOfConditions==len(resCollection):
-        #                 return True
-        #             else:
-        #                 return False
-        #         else:
-        #             if False in resCollection:
-        #                 return False
-        #             else:
-        #                 return True
-        #     elif condition.get("Op")=="or":
-        #         if True in resCollection:
-        #             return True
-        #         else:
-        #             return False
-        # else:
-        #     if mode=="value": 
-        #         verdict=handle_operation(data,condition.get("Op"),condition.get("Value"),flags)
-        #         return verdict
-        #     elif mode=="field":
-        #         verdict=handle_operation(data,condition.get("Op"),condition.get("field",flags))
-        #         return verdict
+
     else:
         print("condition mode ELSE trigered !!!!!!!!!!!!!!!!!!!!!!!!!!")

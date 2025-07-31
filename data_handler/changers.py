@@ -1,25 +1,33 @@
 from .util.recursors import recursor
 
-def change_value(flags={
+def change_value(data="",key="",value="",flags={
         "se":False,
         "cs":True,
         "findOne":False,
         "chain":False
-    },data="",key="",value=""): #DONE and TESTED
+    }): 
     """
-    Provide any nested mixture of arrays and objects and this will let you know if it contains a certain key value pair
+    Change the value of a key in the given data using specified flags.
 
-    Parameters:
-    data (data structure that contains a dict): data.
-    condition (string): {"Op":"eq","Value":"this"}
-
-    Returns: returns the value that is found
-    {"verdict":True/False, "data":array of objects containing each value found that match}
-
-    Example:
-    >>> FieldCheck({"a":1,"b":2,"c":3}, {"Op":"or","Value":[{"Op":"eq","Value":"this"},{"Op":"eq","Value":"that"}]}")
-    {"verdict":True, "data":[{"a":"myValue}]}
-    """
+    Parameters
+    ----------
+    data : data structure, 
+        The input data structure to be searched or modified. Defaults to an empty string.
+    key : str, 
+        The key whose value is to be changed. Defaults to an empty string.
+    value : any, 
+        The new value to assign to the given key. Defaults to an empty string.
+    flags : dict, optional
+        A dictionary of control flags:
+            - 'cs' (bool): Case sensitive key matching. Default is True.
+            - 'findOne' (bool): Stop after finding the first match. Default is False.
+    Returns
+    -------
+    dict
+        A dictionary containing:
+            - 'verdict' (bool): True if change was successful, otherwise False.
+            - 'data' (any or None): Modified data if successful, otherwise None.
+    """  
     flags["mode"]="valueChange"
     res=recursor(flags,True, [], data, key, value)
     if len(res)!=0:
