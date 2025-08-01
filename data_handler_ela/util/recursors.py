@@ -255,14 +255,28 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                         newKeyward=pathExtraction[-1]
                     else:
                         newKeyward=list(keyword.keys())[0]
-                    con=newKeyward in listOfKeys and data.get(newKeyward)==keyword.get(list(keyword.keys())[0])
+                    # operation handler version
+                    check=handle_operation(data.get(newKeyward),op.get("Op"),keyword.get(list(keyword.keys())[0]))
+                    # con=newKeyward in listOfKeys and data.get(newKeyward)==keyword.get(list(keyword.keys())[0]) # use OP handler
+                    con=newKeyward in listOfKeys and check
+
                 else:
                     if flags.get("chain"):
                         pathExtraction=list(keyword.keys())[0].split(".")
                         newKeyward=pathExtraction[-1]
                     else:
                         newKeyward=list(keyword.keys())[0]
-                    con=newKeyward in listOfKeys and data.get(newKeyward).lower()==keyword.get(list(keyword.keys())[0]).lower()
+                    if type(data.get(newKeyward))==str:
+                        data_value=data.get(newKeyward).lower()
+                    else:
+                        data_value=data.get(newKeyward)
+                    if type(keyword.get(list(keyword.keys())[0]))==str:
+                        keyword_value=keyword.get(list(keyword.keys())[0]).lower()
+                    else:
+                        keyword_value=keyword.get(list(keyword.keys())[0])
+                    check=handle_operation(data_value,op.get("Op"),keyword_value)
+                    # con=newKeyward in listOfKeys and data.get(newKeyward).lower()==keyword.get(list(keyword.keys())[0]).lower() # use OP handler
+                    con=newKeyward in listOfKeys and check
                 if flags.get("chain"):
                     if temp.get("path")!=None:
                         pathExtraction=copy.deepcopy(temp.get("path").split("."))
@@ -295,7 +309,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                         if type(data.get(item))==dict or type(data.get(item))==list:
                             temp.get("prevParent").append(copy.deepcopy(temp.get("parent")))
                             temp["parent"]=copy.deepcopy({item:data.get(item)})
-                        recursor(flags,False,result, data.get(item), keyword, op, tip,temp)
+                        recursor(flags,False,result, data.get(item), keyword, op, tip,temp) #op used
                         if temp.get("prevParent")!=[]:
                             temp["parent"]=temp.get("prevParent").pop()
 
@@ -317,7 +331,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                         if type(data.get(item))==dict or type(data.get(item))==list:
                             temp.get("prevParent").append(copy.deepcopy(temp.get("parent")))
                             temp["parent"]=copy.deepcopy({item:data.get(item)})
-                        recursor(flags,False,result, data.get(item), keyword, op, tip,temp)
+                        recursor(flags,False,result, data.get(item), keyword, op, tip,temp) #op used
                         if temp.get("prevParent")!=[]:
                             temp["parent"]=temp.get("prevParent").pop()
                         PathReadjust=temp.get("path").split(".")
@@ -337,15 +351,26 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                                 newKeyward=pathExtraction[-1]
                             else:
                                 newKeyward=keyword
-                            # con=newKeyward in listOfKeys and data.get(newKeyward)==keyword.get(list(keyword.keys())[0])
-                            con=item==newKeyward and op==data.get(item)
+                            check=handle_operation(data.get(item),op.get("Op"),op.get("value"))
+                            # con=item==newKeyward and op.get("value")==data.get(item) # use OP handler #op used
+                            con=item==newKeyward and check # use OP handler #op used
                         else:
                             if flags.get("chain"):
                                 pathExtraction=keyword.split(".")
                                 newKeyward=pathExtraction[-1]
                             else:
                                 newKeyward=keyword
-                            con=item==newKeyward and op.lower()==data.get(item).lower()
+                            if type(op.get("value"))==str:
+                                keyword_value=op.get("value").lower()
+                            else:
+                                keyword_value=op.get("value")
+                            if type(data.get(item))==str:
+                                data_value=data.get(item).lower()
+                            else:
+                                data_value=data.get(item)
+                            check=handle_operation(data_value,op.get("Op"),keyword_value)
+                            # con=item==newKeyward and op.get("value").lower()==data.get(item).lower() # use OP handler #op used
+                            con=item==newKeyward and check # use OP handler #op used
                         if flags.get("chain"):
                             if temp.get("path")!=None:
                                     pathExtraction=copy.deepcopy(temp.get("path").split("."))
@@ -371,7 +396,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                             if type(data.get(item))==dict or type(data.get(item))==list:
                                 temp.get("prevParent").append(copy.deepcopy(temp.get("parent")))
                                 temp["parent"]=copy.deepcopy({item:data.get(item)})
-                            recursor(flags,False,result, data.get(item), keyword, op, tip, temp)
+                            recursor(flags,False,result, data.get(item), keyword, op, tip, temp) #op used
                             if temp.get("prevParent")!=[]:
                                 temp["parent"]=temp.get("prevParent").pop()
                         else:
@@ -382,7 +407,7 @@ def recursor(flags,initial=True,result=[],data="", keyword="", op="eq", tip="", 
                             if type(data.get(item))==dict or type(data.get(item))==list:
                                 temp.get("prevParent").append(copy.deepcopy(temp.get("parent")))
                                 temp["parent"]=copy.deepcopy({item:data.get(item)})
-                            recursor(flags,False,result, data.get(item), keyword, op, tip, temp)
+                            recursor(flags,False,result, data.get(item), keyword, op, tip, temp) #op used
                             if temp.get("prevParent")!=[]:
                                 temp["parent"]=temp.get("prevParent").pop()
                         PathReadjust=temp.get("path").split(".")

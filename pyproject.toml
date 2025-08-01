@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data_handler_ela"
-version = "0.1.0"
+version = "0.1.2"
 description = "all in one Complicated Data structure searching and altering tool"
 authors = ["Eliyas Wubie <eliyas.wubie1@gmail.com>"]
 license = "NONE"

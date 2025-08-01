@@ -1,4 +1,5 @@
 from .util.recursors import recursor
+import copy
 tracker=[]  #used by evaluator 
 
 
@@ -76,7 +77,7 @@ def check_value(data="", operator="", value="",flags={
     else:
         return {"verdict":False, "data":None}
 
-def check_key_value(data="", keyword="", value="",flags={
+def check_key_value(data="", keyword="", op="", value="",flags={
         "se":False,
         "cs":True,
         "findOne":False,
@@ -91,8 +92,10 @@ def check_key_value(data="", keyword="", value="",flags={
         The input data structure to evaluate (typically a dictionary or list). Defaults to an empty string.
     keyword : str or dict,
         The key to search for in the data. Can be a string (for key search) or a dict (for key-value matching). Defaults to an empty string.
+    op : str,
+        Operation for value -  eq, match, gt, lt, gte, lte.
     value : str, 
-        The value to be matched against the specified key. Defaults to an empty string.
+        The value to be matched against the specified key. Defaults to an empty string. can be bypassed when object mode is used
     flags : dict, optional
         A dictionary of control flags:
             - 'cs' (bool): Case-sensitive comparisons. Default is True.
@@ -107,13 +110,17 @@ def check_key_value(data="", keyword="", value="",flags={
             - 'data' (list or None): A list of matched results if found, otherwise None.
     """
     if type(keyword)==dict:
+        if type(value)==dict:
+            flags=copy.deepcopy(value)
         flags["mode"]="keyValueCheck"
         flags["Found"]=False
-        res=recursor(flags, True, [], data, keyword, value, "obj")
+        value=list(keyword.values())[0]
+        # print(flags, True, [], data, keyword, {"Op":op,"value":value}, "obj")
+        res=recursor(flags, True, [], data, keyword, {"Op":op,"value":value}, "obj")
     else:
         flags["mode"]="keyValueCheck"
         flags["Found"]=False
-        res=recursor(flags, True, [], data, keyword, value)
+        res=recursor(flags, True, [], data, keyword, {"Op":op,"value":value})
     if len(res)!=0:
         return {"verdict":True, "data":res}
     else:
@@ -267,7 +274,7 @@ def evaluate_object(data="",condition="",initial=True):
                     "cs":True,
                     "findOne":False
                 }
-                res=check_key_value(flags,data,item.get("field"),item.get("Value"))
+                res=check_key_value(data,item.get("field"),item.get("Value"),flags)
                 verdict=res.get("verdict")
                 if initial:
                     tracker.append(verdict)
