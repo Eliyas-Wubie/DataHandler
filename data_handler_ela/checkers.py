@@ -264,7 +264,6 @@ def evaluate_object(data="",condition="",initial=True):
                 res=evaluate_object(data,item,False)
                 if initial:
                     tracker.append(res)
-                    # print("returned",tracker)
                 else:
                     newTracker.append(verdict)
             else:
@@ -274,7 +273,7 @@ def evaluate_object(data="",condition="",initial=True):
                     "cs":True,
                     "findOne":False
                 }
-                res=check_key_value(data,item.get("field"),item.get("Value"),flags)
+                res=check_key_value(data,item.get("field"),item.get("Op"),item.get("Value"),flags)
                 verdict=res.get("verdict")
                 if initial:
                     tracker.append(verdict)
@@ -287,13 +286,11 @@ def evaluate_object(data="",condition="",initial=True):
                 else:
                     return False
             elif condition.get("Op")=="or":
-                print(tracker)
                 if len(tracker)==len(condition.get("Value")) and True in tracker:
                     return True
                 else:
                     return False
         else:
-            print(newTracker)
             if condition.get("Op")=="and":
                 if len(newTracker)==len(condition.get("Value")) and False not in newTracker:
                     return True

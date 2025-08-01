@@ -9,5 +9,15 @@ flag={
     "findOne":False,
     "chain":False
 }
-res=check_key_value(data,{"one":"abcd"},"eq",flag)
+cond={
+    "Op":"or",
+    "Value":[
+        {
+            "Op":"match",
+            "field":"one",
+            "Value":"abc"
+        }
+    ]
+}
+res=evaluate_object(data,cond)
 print(res)
