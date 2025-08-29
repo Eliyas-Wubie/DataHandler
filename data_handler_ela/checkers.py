@@ -188,7 +188,7 @@ def check_SE_multi_key_value(data="",condition="",flags={
             - 'verdict' (bool): True if matching key-value pair(s) found, otherwise False.
             - 'data' (list or None): The matched data as a list if found, otherwise None.
     """
-    flags["mode"]="multicheck_key_value"
+    flags["mode"]="multiKeyValueCheck"
     res=recursor(flags,True, [], data, condition)
     if len(res)!=0:
         return {"verdict":True, "data":res}
