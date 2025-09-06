@@ -92,7 +92,7 @@ def check_key_value(data="", keyword="", op="", value="",flags={
         The input data structure to evaluate (typically a dictionary or list). Defaults to an empty string.
     keyword : str or dict,
         The key to search for in the data. Can be a string (for key search) or a dict (for key-value matching). Defaults to an empty string.
-    op : str,
+    op : str, - must
         Operation for value -  eq, match, gt, lt, gte, lte.
     value : str, 
         The value to be matched against the specified key. Defaults to an empty string. can be bypassed when object mode is used
